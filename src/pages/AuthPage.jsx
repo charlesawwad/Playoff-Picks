@@ -17,16 +17,16 @@ export default function AuthPage() {
     setMessage('');
     setLoading(true);
 
-    if (mode === 'signup') {
-      const { error } = await supabase.auth.signUp({ email, password });
+if (mode === 'signup') {
+      const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) {
         setError(error.message);
-      } else {
-        // Update username after signup
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          await supabase.from('profiles').update({ username }).eq('id', user.id);
+      } else if (data.session) {
+        // Confirmation off — user is logged in immediately
+        if (data.user) {
+          await supabase.from('profiles').update({ username }).eq('id', data.user.id);
         }
+      } else {
         setMessage('Check your email to confirm your account!');
       }
     } else {
